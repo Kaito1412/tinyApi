@@ -1,4 +1,4 @@
 {
-    "port": 3000,
-    "mongo": "mongodb://localhost:27017/shop"
+    "port": 3001,
+    "mongo": "mongodb://127.0.0.1:27017/shop"
 }

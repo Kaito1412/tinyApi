@@ -1,21 +1,20 @@
 const Product = require('../models/product');
 
 function getProducts(req, res) {
-  Product.find({}, (err, products) => {
-    if (err) return res.status(500).send({ message: `Error: ${err}` });
-    if (!products) {
-      return res.status(404).send({ error: 'No products' });
-    }
+  Product.find({})
+    .then(products => {
+      if (!products) {
+        return res.status(404).send({ error: 'No products' });
+      }
 
-    res.status(200).send({ products });
-  });
+      res.status(200).send({ products });
+    }).catch(err => res.status(500).send({ message: `Error: ${err}` }));
 }
 
 function getProduct(req, res) {
   let productId = req.params.productId;
 
-  Product.findById(productId, (err, product) => {
-    if (err) return res.status(500).send({ message: err });
+  Product.findById(productId).then(product => {
     if (!product) {
       return res
         .status(404)
@@ -23,32 +22,25 @@ function getProduct(req, res) {
     }
 
     res.status(200).send({ product });
-  });
+  }).catch(err => res.status(500).send({ message: err }));
 }
 
 function updateProduct(req, res) {
   let productId = req.params.productId;
   let update = req.body;
 
-  Product.findByIdAndUpdate(productId, update, (err, product) => {
-    if (err) return res.status(500).send({ error: err });
-
-    res.status(200).send({ product });
-  });
+  Product.findByIdAndUpdate(productId, update)
+    .then(product => { res.status(200).send({ product }); })
+    .catch(err => { res.status(500).send({ error: err }); });
 }
 
 function deleteProduct(req, res) {
   let productId = req.params.productId;
 
-  Product.findById(productId, (err, product) => {
-    if (err) return res.status(500).send({ error: err });
-
-    product.remove(err => {
-      if (err) return res.status(500).send({ error: err });
-      res.status(200)
-      .send({ message: 'The product has been deleted' });
-    });
-  });
+  Product.findById(productId)
+    .then(product => product.remove())
+    .then(() => res.status(200).send({ message: 'The product has been deleted' }))
+    .catch(err => res.status(500).send({ error: err }));
 }
 
 function saveProduct(req, res) {
@@ -59,10 +51,9 @@ function saveProduct(req, res) {
   product.category = req.body.category;
   product.description = req.body.description;
 
-  product.save((err, productStored) => {
-    if (err) res.status(500).send({ error: err });
-    res.status(200).send({ product: productStored });
-  });
+  product.save()
+    .then(productStored => res.status(200).send({ product: productStored }))
+    .catch(err => res.status(500).send({ error: err }));
 }
 
 module.exports = {
